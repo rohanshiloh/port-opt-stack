@@ -41,9 +41,9 @@
   <p class="lead"><span class="mnote"><b>Companion.</b> <a href="https://rohanshiloh.github.io/exec-tca-stack/">Anatomy of a Fill</a> scores each fill against a benchmark. This document takes the same fills as inputs: each one moves the book, and the book is what the optimiser optimises.</span><b>The whole argument in one paragraph.</b> A portfolio optimiser answers one question: given what I expect, what I fear and what it costs to move, what should I hold? The textbook asks it once a day. But the inputs move all day, and the biggest one, the book you hold now, moves on every fill. OSQP is a solver built to be asked the same question over and over with a few numbers changed: it keeps its factorisation, starts from its last answer, and takes a few dozen iterations instead of a few thousand. Put it in a q process behind the tickerplant, write the problem in its one shape, and re-optimising on a fill costs milliseconds. The rest of the document is that idea, worked through, with the numbers measured.</p>
 
     <h4 class="sub" id="modes-glance">Three Ways to Run It</h4>
-  <p><b>Single.</b> One book, one period: the target portfolio for now, re-optimised on every batch of fills. The default, and the case the labs measure first.</p>
-  <p><b>MPO, multi-period: one book, several sessions.</b> A $2bn long-only fund decides, after an earnings revision, to rotate out of financials into technology. Doing it all today would cost too much in market impact. MPO plans the rotation over three sessions — say 40% of the financials sold today, 35% tomorrow and the balance on day three — and executes only today's slice, so it does not chase an alpha signal that is already decaying. The next morning it is re-optimised from the holdings actually left and refreshed forecasts. That plan–execute–re-plan loop is <b>model predictive control (MPC)</b>, the engineering name for it: a satnav does the same, planning the whole route, taking the first turn, then re-planning from where the car actually is. MPO run this way <i>is</i> MPC applied to a portfolio. Typical users: large or capacity-constrained books, liquidations, portfolio transitions and index rebalances.</p>
-  <p><b>MSO, multi-strategy: several books, one execution desk.</b> On a multi-manager platform at 10:00, the momentum pod wants to buy 500k NVDA and the reversal pod wants to sell 400k. MSO optimises the books jointly and sends the desk only the net 100k buy; the other 400k crosses internally, with no spread or market impact paid. Each PM keeps their own book, risk limits and P&amp;L attribution. Typical users: multi-manager (pod) hedge funds and bank desks internalising flow.</p>
+  <p><b><a href="#mode-single">Single.</a></b> One book, one period: the target portfolio for now, re-optimised on every batch of fills. The default, and the case the labs measure first.</p>
+  <p><b><a href="#mode-mpo">MPO</a>, multi-period: one book, several sessions.</b> A $2bn long-only fund decides, after an earnings revision, to rotate out of financials into technology. Doing it all today would cost too much in market impact. MPO plans the rotation over three sessions — say 40% of the financials sold today, 35% tomorrow and the balance on day three — and executes only today's slice, so it does not chase an alpha signal that is already decaying. The next morning it is re-optimised from the holdings actually left and refreshed forecasts. That plan–execute–re-plan loop is <b>model predictive control (MPC)</b>, the engineering name for it: a satnav does the same, planning the whole route, taking the first turn, then re-planning from where the car actually is. MPO run this way <i>is</i> MPC applied to a portfolio. Typical users: large or capacity-constrained books, liquidations, portfolio transitions and index rebalances.</p>
+  <p><b><a href="#mode-mso">MSO</a>, multi-strategy: several books, one execution desk.</b> On a multi-manager platform at 10:00, the momentum pod wants to buy 500k NVDA and the reversal pod wants to sell 400k. MSO optimises the books jointly and sends the desk only the net 100k buy; the other 400k crosses internally, with no spread or market impact paid. Each PM keeps their own book, risk limits and P&amp;L attribution. Typical users: multi-manager (pod) hedge funds and bank desks internalising flow.</p>
   <p><b>In short:</b> MPO decides <i>when</i> to trade; MSO decides <i>whose</i> trade it is. Both are set with one flag; <a href="#intro-many">§4</a> has the mathematics, the diagrams and when each runs.</p>
 
 <h3 id="intro-classic"><span class="n">1</span>The Classic Problem</h3>
@@ -59,7 +59,7 @@
   </div>
 
   <h4 class="sub" id="c-risk"><span class="n">1.2</span>Minimise Risk and Transaction Costs</h4>
-  <p><span class="mnote"><b>Choosing λ.</b> λ is the price of variance in units of expected return. Desks rarely pick it directly: they set it so the solution lands on a target ex-ante volatility or tracking error. When costs and constraints don't bind, doubling λ halves the active bets.</span><span class="mnote"><b>Match the horizons.</b> α is earned over a horizon; a cost is paid once, when you trade. A one-day α against a round-trip cost of 10 bps will not trade much. Scale α to the holding period, or the costs to a per-period amortisation.</span>Risk is the variance of the book's return, \(h^{\top}V h\), weighed by a risk aversion \(\lambda &gt; 0\). The specific risk \(\Delta \) is the diagonal of \(V\), not a separate term beside it. Costs are a function of the <b>trade</b> \(h - h_0\), from the book held now, never of the holding: a position that stays where it is costs nothing to keep. In shares, a trade in asset \(a_i\) is \((h_i - h_{0,i})\,p/\psi_i\) for a book worth \(p\) and a price \(\psi_i\).</p>
+  <p><span class="mnote"><b>Choosing λ.</b> λ is the price of variance in units of expected return. Desks rarely pick it directly: they set it so the solution lands on a target ex-ante volatility or tracking error. When costs and constraints don't bind, doubling λ halves the active bets.</span><span class="mnote"><b>Match the horizons.</b> α is earned over a horizon; a cost is paid once, when you trade. A one-day α against a round-trip cost of 10 bps will not trade much. Scale α to the holding period, or the costs to a per-period amortisation.</span>Risk is the variance of the book's return, \(h^{\top}V h\), weighed by a risk aversion \(\lambda &gt; 0\). The specific risk \(\Delta \) is the diagonal of \(V\), not a separate term beside it. Costs are a function of the <b>trade</b> \(h - h_0\), from the book held now, never of the holding: a position that stays where it is costs nothing to keep. In shares, a trade in asset \(a_i\) is \((h_i - h_{0,i})\,\text{NAV}/\psi_i\) for a book worth NAV and a price \(\psi_i\).</p>
   <div class="eqfig" id="eq-risk">
     <div class="eqlabels top"><span class="eql" data-t="r2l">risk aversion<i style="--c:#64748b"></i></span><span class="eql" data-t="r2d">specific risk<i style="--c:#f59e0b"></i></span></div>
     <div class="eqmath">\[ \min_{h}\;\; \class{r2l}{\bbox[#94a3b8,6px]{\lambda}}\, h^{\top}\!\left(\class{r2f}{\bbox[#ef4444,6px]{X F X^{\top}}} + \class{r2d}{\bbox[#f59e0b,6px]{\Delta }}\right) h \;+\; \class{r2c}{\bbox[#22c55e,6px]{\sum_i \phi_i\!\left(h_i - h_{0,i}\right)}} \]</div>
@@ -108,7 +108,7 @@
   </figure>
 
   <h5 class="bar" id="barra-cov"><span class="n">c</span>Covariance Matrix Calculation</h5>
-  <p><span class="mnote"><b>Not our λ.</b> In this subsection λ is Barra's decay factor for old data, between 0 and 1. Everywhere else in this document λ is the risk aversion of <a href="#c-risk">1.2</a>. Likewise κ in (d) below is Barra's scaling constant, not the cost κ.</span>The history of factor returns gives the factor covariance \(F\): the variance of each factor down the diagonal, and how each pair moves together off it. The simplest estimate counts every past month equally. Markets change, so Barra gives recent months more weight with an exponential decay set by a <b>half-life</b>:</p>
+  <p><span class="mnote"><b>Not our λ.</b> In this subsection λ is Barra's decay factor for old data, between 0 and 1. Everywhere else in this document λ is the risk aversion of <a href="#c-risk">1.2</a>. Likewise in (d) below: κ is Barra's scaling constant, not the cost κ; α is the regression intercept, not expected return; β<sub>ℓ</sub> are regression coefficients, not betas; and \(\hat V_{it}\) is a stock's relative specific volatility, not the covariance V.</span>The history of factor returns gives the factor covariance \(F\): the variance of each factor down the diagonal, and how each pair moves together off it. The simplest estimate counts every past month equally. Markets change, so Barra gives recent months more weight with an exponential decay set by a <b>half-life</b>:</p>
   <div class="eq" style="text-align:center;font-size:1.15em">\[ \lambda \;=\; 0.5^{\,1/\text{HALF-LIFE}} \qquad\qquad w(t) \;=\; \lambda^{\,T-t} \]</div>
   <p><span class="mnote"><b>Half-life.</b> The age at which an observation counts half as much as this month's. With 48 months, a month four years ago counts half, eight years ago a quarter. Longer is steadier; shorter reacts faster but throws more data away.</span>\(T\) is this month and \(t\) any month in the past, so an observation one half-life old gets half the weight of the newest. Barra's global equity model uses a half-life of 48 months. Many models also <b>scale</b> \(F\) so that the risk it predicts for a market index, such as the S&amp;P 500 or Japan's TSE1, matches a separate short-term forecast of that index's volatility (a GARCH model, or an exponentially weighted daily volatility), because calm and turbulent periods tend to cluster. The result, in Barra's layout, is a \(k \times k\) matrix:</p>
   <div class="eq" style="text-align:center;font-size:1.1em">\[ F \;=\; \begin{bmatrix} \operatorname{Var}(f_1) & \operatorname{Cov}(f_1, f_2) & \cdots & \operatorname{Cov}(f_1, f_k) \\ \operatorname{Cov}(f_2, f_1) & \operatorname{Var}(f_2) & \cdots & \operatorname{Cov}(f_2, f_k) \\ \vdots & \vdots & \ddots & \vdots \\ \operatorname{Cov}(f_k, f_1) & \operatorname{Cov}(f_k, f_2) & \cdots & \operatorname{Var}(f_k) \end{bmatrix} \]</div>
@@ -374,7 +374,7 @@ q)b:.po.single d                        <span class="c">/ the same builder as be
 
   <div id="units" class="shard-note">
     <div class="note-title">One Unit Convention</div>
-    <p>Weights are fractions of NAV: <code>0.01</code> is one percent of the book. α is expected return per year and V is variance per year, so \(\alpha^{\top}h\) and \(\lambda h^{\top}V h\) are in return per year. Costs \(\kappa\) and \(\eta\) are per unit of weight traded: <code>kappa = 5e-4</code> is 5 bps of the notional traded. A shares trade becomes a weight change as <code>qty * px % NAV</code>, signed +1 for a buy. Every bps figure in this document is <code>1e4 *</code> one of these.</p>
+    <p>Weights are fractions of NAV: <code>0.01</code> is one percent of the book. α is expected return per year and V is variance per year, so \(\alpha^{\top}h\) and \(\lambda h^{\top}V h\) are in return per year. The linear cost \(\kappa\) is per unit of weight traded and the impact \(\eta\) per squared unit: <code>kappa = 5e-4</code> is 5 bps of the notional traded. A shares trade becomes a weight change as <code>qty * px % NAV</code>, signed +1 for a buy. Every bps figure in this document is <code>1e4 *</code> one of these.</p>
     <p><b>Mind the horizon.</b> Setting a yearly α and V against a cost paid once assumes the trade is held for about a year. For a book rebalanced daily, scale α and V to the period (÷ 252 for a day), or scale κ and η up by the number of times a year the position turns over; it is the "Match the horizons" note of <a href="#c-risk">1.2</a>. The labs keep yearly units, so their trades are the ones a one-year holding would justify.</p>
     <p>OSQP <i>minimises</i>, so the objective it sees is the negative of the utility above: <code>−αᵀh + risk + cost</code>. A lower OSQP objective is a better portfolio.</p>
   </div>
@@ -756,7 +756,7 @@ q).po.parts[d;.po.split[b;r`x]]</pre></div>
     </div>
     <div class="step" id="step-06">
       <h3><span class="n">06</span>Start, One Process per Tab</h3>
-      <p>The live lab runs behind exec-tca-stack, cloned beside this repo in <code>~/Code/exec-tca-stack</code>. Order matters: the plant, its subscribers, the chain, the two CEPs behind it, then the feed last so nothing misses the open.</p>
+      <p>The live lab runs behind exec-tca-stack, cloned beside this repo in <code>~/Code/exec-tca-stack</code>. Order matters: the plant, its subscribers, the chain, the two CEPs behind it, then the feed last so nothing misses the open. The feed sends its own random fills; it does not execute the optimiser's targets, so the book h₀ drifts away from the target. When a drift leaves no feasible trade within the turnover budget, <code>opt.q</code> widens τ just enough (<code>tauNeed[]</code>).</p>
       <div class="code"><pre data-lang="sh"><span class="c"># 1 tickerplant — logs to ./log</span>
 cd ~/Code/exec-tca-stack &amp;&amp; q tick.q sym ./log -p 5010
 <span class="c"># 2 rdb</span>
@@ -814,9 +814,9 @@ q)\\</pre></div>
       <tr><td>\(b,\;s\)</td><td>buys and sells, both ≥ 0: \(h - h_0 = b - s\)</td><td><code>z`b</code>, <code>z`s</code></td></tr>
       <tr><td>\(x_p\)</td><td>factor exposures of the book, \(X^{\top}h\)</td><td><code>z`xp</code></td></tr>
       <tr><td>\(\alpha\)</td><td>expected return per name, per year</td><td><code>d`alpha</code></td></tr>
-      <tr><td>\(X,\;F,\;\Delta \)</td><td>exposures (n × k), factor covariance (k × k), specific variances</td><td><code>d`X</code>, <code>d`F</code>, <code>d`Delta</code></td></tr>
+      <tr><td>\(X,\;F,\;\Delta \)</td><td>exposures (n × k), factor covariance (k × k), specific variances (Δ is an n × n diagonal matrix; q stores its diagonal as a vector)</td><td><code>d`X</code>, <code>d`F</code>, <code>d`Delta</code></td></tr>
       <tr><td>\(\lambda\)</td><td>risk aversion</td><td><code>d`lambda</code></td></tr>
-      <tr><td>\(\kappa,\;\eta\)</td><td>linear cost, quadratic impact, per unit weight</td><td><code>d`kappa</code>, <code>d`eta</code></td></tr>
+      <tr><td>\(\kappa,\;\eta\)</td><td>linear cost per unit of weight traded; quadratic impact per squared unit</td><td><code>d`kappa</code>, <code>d`eta</code></td></tr>
       <tr><td>\(\tau\)</td><td>turnover budget for the rebalance</td><td><code>d`tau</code></td></tr>
       <tr><td>\(H,\;\delta\)</td><td>periods in the horizon, alpha decay per period</td><td><code>.po.mpo[d;H;decay]</code></td></tr>
       <tr><td>\(S,\;c_s\)</td><td>strategies, each one's share of capital</td><td><code>.po.mso[d;alphas;caps;…]</code></td></tr>
@@ -859,7 +859,7 @@ I:rF+til k; J:cy+til k; V:k#-1f  <span class="c">/ -xp</span></pre></div></div>
   <div class="tbl"><table class="wide cheat">
     <thead><tr><th>Constraint</th><th>Rows of A</th><th>Bounds</th><th>Changes on</th><th>Update</th></tr></thead>
     <tbody>
-      <tr><td>factor definition</td><td>Xᵀh − xₚ</td><td>0 = · = 0</td><td>a new risk model</td><td>setup (values) or updmat</td></tr>
+      <tr><td>factor definition</td><td>Xᵀh − xₚ</td><td>0 = · = 0</td><td>a new risk model</td><td><code>.qp.updmat</code> Ax, Px (setup if the sparsity changes)</td></tr>
       <tr><td>trade split</td><td>h − b + s</td><td>h₀ = · = h₀</td><td>every fill</td><td><code>.qp.update</code> l, u</td></tr>
       <tr><td>budget</td><td>1ᵀh</td><td>1, or a band</td><td>cash policy</td><td><code>.qp.update</code> l, u</td></tr>
       <tr><td>box</td><td>h</td><td>lo · hi</td><td>a limit change</td><td><code>.qp.update</code> l, u</td></tr>
@@ -868,12 +868,12 @@ I:rF+til k; J:cy+til k; V:k#-1f  <span class="c">/ -xp</span></pre></div></div>
       <tr><td>factor bounds</td><td>xp</td><td>fl · fu</td><td>a risk limit</td><td><code>.qp.update</code> l, u</td></tr>
       <tr><td>alpha</td><td>— (in q)</td><td>—</td><td>a signal update</td><td><code>.qp.update</code> q</td></tr>
       <tr><td>risk aversion</td><td>— (in P)</td><td>—</td><td>a regime switch</td><td><code>.qp.updmat</code> Px</td></tr>
-      <tr><td>a new name</td><td>a new column everywhere</td><td>—</td><td>universe change</td><td><b>setup</b>: the sparsity changes</td></tr>
+      <tr><td>a new name</td><td>new columns h, b and s, and their rows</td><td>—</td><td>universe change</td><td><b>setup</b>: the sparsity changes</td></tr>
     </tbody>
   </table></div>
 
   <h3 id="pb-which"><a id="which-solver" style="position:absolute" aria-hidden="true"></a><span class="n">?</span>Which Solver, When?</h3>
-  <p class="lead">The benchmarks in Lab D1 settle a question the earlier comparison left open. OSQP is not the fastest solver for this problem from a cold start; Clarabel is, by three to ten times above a thousand names. OSQP is the fastest by far for the <i>next</i> solve, because it keeps its state and Clarabel does not.</p>
+  <p class="lead">The benchmarks in Lab D1 settle a question the earlier comparison left open. OSQP is not the fastest solver for this problem from a cold start; Clarabel is: level at 1,000 names, about 1.6 times faster at 2,000 names on one period, and 3.7 to 4.6 times faster on the multi-period problems of Lab C1. OSQP is the fastest by far for the <i>next</i> solve, because it keeps its state and Clarabel does not.</p>
   <div class="tbl"><table class="wide cheat">
     <thead><tr><th></th><th>OSQP</th><th>Clarabel</th><th>HiGHS</th><th>CVXPY</th></tr></thead>
     <tbody>
@@ -885,7 +885,7 @@ I:rF+til k; J:cy+til k; V:k#-1f  <span class="c">/ -xp</span></pre></div></div>
       <tr><td>Exponential cone · log utility</td><td>✗</td><td>✓</td><td>✗</td><td>✓ via Clarabel</td></tr>
       <tr><td>SDP</td><td>✗</td><td>✓</td><td>✗</td><td>✓ via a solver</td></tr>
       <tr><td>MILP · cardinality, lots</td><td>✗</td><td>✗</td><td>✓</td><td>✓ via HiGHS</td></tr>
-      <tr><td>Warm re-solve</td><td>excellent</td><td>limited</td><td>good (LP)</td><td>parameters skip the rebuild</td></tr>
+      <tr><td>Warm re-solve</td><td>excellent</td><td>none (cold start only)</td><td>good (LP)</td><td>parameters skip the rebuild</td></tr>
       <tr><td>Linking with q</td><td>small C API: this shim</td><td>C API on Rust</td><td>full C API</td><td>Python only, via PyKX</td></tr>
       <tr><td>Threads, one solve</td><td>one (builtin); MKL, CUDA from source</td><td>mostly one; GPU variant</td><td>mostly one; GPU LP</td><td>—</td></tr>
       <tr><td>Licence</td><td>Apache-2.0</td><td>Apache-2.0</td><td>MIT</td><td>Apache-2.0</td></tr>
@@ -1017,7 +1017,7 @@ q)(b`u) b`rO                            <span class="c">/ turnover left</span></
     <div class="notes">
       <h3><span class="n">B2</span>New Alpha, New λ</h3>
       <div class="where">Run in <span class="tag tsh">OPT</span></div>
-      <p>An alpha update is <code>q</code> and nothing else: <code>.po.alpha</code> overwrites its first n entries. A new risk aversion scales every value of <code>P</code> but not its pattern, so OSQP can take the new values with <code>.qp.updmat</code>. It has to refactorise its KKT system, but it keeps its scaling and its warm start, and it is still far cheaper than a new setup.</p>
+      <p>An alpha update is <code>q</code> and nothing else: <code>.po.alpha</code> overwrites its first n entries. A new risk aversion changes the risk entries of <code>P</code> (2λΔ and 2λF) but not its pattern; the impact entries 2η do not depend on λ, so OSQP can take the new values with <code>.qp.updmat</code>. It has to refactorise its KKT system, but it keeps its scaling and its warm start, and it is still far cheaper than a new setup.</p>
       <p class="notice"><code>.qp.updmat</code> takes the whole value vector, in the order <code>.qp.csc</code> sorted it. <code>.po.lambda</code> works on single-period problems only, and refuses an MPO or MSO one; it rebuilds the triplets and sorts them the same way, so the values line up; the shim rejects a vector of the wrong length.</p>
     </div>
     <div class="cmds">
@@ -1070,7 +1070,7 @@ q)z0:.po.period[m;rm`x;0]; first0:(z0`b)-z0`s</pre></div>
     <figure class="span" id="fig-mpc" style="margin-top:6px">
       <div class="fig">
 <svg viewBox="0 0 900 230" role="img" aria-label="A horizon of four periods. Each period has its own weights, buys and sells, and its alpha decays by a factor delta each period. Each period's trade is measured from the book the previous period left. Only the first period's trade is executed; next period the horizon rolls forward and the problem is solved again from the new book.">
-  <defs><marker id="mp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+  <defs><marker id="mp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker><marker id="mpa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
   <g font-family="Schibsted Grotesk,sans-serif" text-anchor="middle">
     <rect x="30" y="70" width="90" height="60" rx="5" fill="var(--sheet)" stroke="var(--muted)"/><text x="75" y="96" font-size="12.5" font-weight="600" fill="var(--fg)">h₀</text><text x="75" y="114" font-size="10.5" fill="var(--muted)">book now</text>
     <rect x="180" y="62" width="140" height="76" rx="5" fill="var(--s0-bg)" stroke="var(--accent)" stroke-width="1.6"/><text x="250" y="88" font-size="12.5" font-weight="600" fill="var(--accent)">period 1</text><text x="250" y="106" font-size="10.5" fill="var(--fg)">α</text><text x="250" y="124" font-size="10.5" fill="var(--accent)" font-weight="600">executed</text>
@@ -1080,7 +1080,7 @@ q)z0:.po.period[m;rm`x;0]; first0:(z0`b)-z0`s</pre></div>
   </g>
   <g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M120 100 H180" marker-end="url(#mp)"/><path d="M320 100 H360" marker-end="url(#mp)"/><path d="M500 100 H540" marker-end="url(#mp)"/><path d="M680 100 H720" marker-end="url(#mp)"/></g>
   <g font-family="JetBrains Mono,monospace" font-size="10" fill="var(--muted)" text-anchor="middle"><text x="150" y="92">trade</text><text x="340" y="92">h₁</text><text x="520" y="92">h₂</text><text x="700" y="92">h₃</text></g>
-  <path d="M250 138 C 250 196, 75 196, 75 136" fill="none" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.3" marker-end="url(#mp)"/>
+  <path d="M250 138 C 250 196, 75 196, 75 136" fill="none" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.3" marker-end="url(#mpa)"/>
   <text x="300" y="200" font-family="Schibsted Grotesk,sans-serif" font-size="11" fill="var(--accent)">next period: the executed trade is the new h₀, and the horizon rolls forward</text>
 </svg>
       </div>

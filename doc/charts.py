@@ -240,7 +240,7 @@ def live_chart(mode):
     o.append(f'<rect x="{x}" y="{ly-6}" width="22" height="12" fill="var(--accent)" fill-opacity=".18"/><text x="{x+28}" y="{ly+4}" {SANS} font-size="11" fill="var(--fg)">shaded: the trade the optimiser wants</text>')
     gaps = ", ".join(f"{s} {100*sum(abs(p[2]-p[1]) for p in by[s])/len(by[s]):.1f}%" for s in syms)
     aria = (f"Live {mode} run, {tmax:.0f} minutes, one panel per name. Each panel shows the book held over time, moved by the feed's fills, "
-            f"and the optimiser's target; the shaded band between them is the trade it wants. Mean gap between book and target: {gaps}.")
+            f"and the optimiser's target{'; a dashed amber line shows the planned book two periods ahead' if mode=='mpo' else ''}{'; thin lines show the four strategy books' if mode=='mso' else ''}; a dashed red line marks the 30% limit per name; the shaded band between them is the trade it wants. Mean gap between book and target: {gaps}.")
     return f'<svg viewBox="0 0 {W} {ly+16}" role="img" aria-label="{aria}">' + "".join(o) + "</svg>"
 
 CHARTS.update(live_single=lambda: live_chart("single"), live_mpo=lambda: live_chart("mpo"), live_mso=lambda: live_chart("mso"))

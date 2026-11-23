@@ -72,6 +72,7 @@ tauNeed:{h0:(b`l) b[`rT]+til b`n; c:BOX[0]|BOX[1]&h0; m:sum abs c-h0;
 
 / a fill: a buy of q shares at p adds q*p/NAV to the name's weight
 upd:{[t;x] if[not t=`execs; :()];
+  / execType="F" is a fill in exec-tca-stack's execution reports
   f:select sym, side, lastPx, lastQty from x where execType="F", sym in uni;
   if[0=count f; :()];
   px[f`sym]:f`lastPx;
