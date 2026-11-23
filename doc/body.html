@@ -1,7 +1,7 @@
 <div class="sheet">
 <header>
   <div class="titleblock"><div class="kicker">A Companion to Anatomy of a Fill — The Decision</div><h1>Weights in Motion<span class="subtitle">Intraday Portfolio Optimisation with OSQP on a Live Tick Stack in <span style="font-variant-caps:normal;font-feature-settings:normal">q/KDB+</span></span><span class="subtitle" style="font-size:.36em;margin-top:4px">Multi-Strategy &amp; Multi-Period Portfolio Optimization with Constraints</span></h1><div class="byline"><a href="https://rohanshiloh.github.io/port-opt-stack/" style="color:inherit;text-decoration:none">rohanshiloh.github.io/port-opt-stack</a></div></div>
-  <div class="meta">KDB-X Community Edition · macOS<br>~/Code/port-opt-stack<br>OSQP 1.0 · factor model · weights<br><button class="themebtn" id="themebtn" type="button" aria-label="Switch colour theme">Theme: auto</button></div>
+  <div class="meta">KDB-X Community Edition · macOS or Linux<br>~/Code/port-opt-stack<br>OSQP 1.0 · factor model · weights<br><button class="themebtn" id="themebtn" type="button" aria-label="Switch colour theme">Theme: auto</button></div>
 </header>
 
 <p class="abstract">A portfolio optimiser that runs inside the same q/kdb+ stack as the market data and the fills, and re-solves as each fill arrives. The classic mean–variance problem — maximise expected return, minus factor risk, specific risk and transaction costs, subject to the holdings adding up to 100% of the capital and a maximum holding in each stock — is turned into OSQP's input matrices directly by our own q code (<code>.po.blocks</code>), with no modelling tool such as CVXPY in between. OSQP (<a href="https://osqp.org/">Operator Splitting Quadratic Program from University of Oxford</a>) is called from q through a 180-line C file (a “shim”), which q loads with <code>2:</code> once it is compiled with clang against KX's <a href="https://github.com/KxSystems/kdb/blob/master/c/c/k.h">k.h</a> header. OSQP stays loaded between solves and remembers its last answer. When a fill arrives only two vectors change, the bounds <code>l</code> and <code>u</code>, so it re-solves starting from that answer (a “warm” re-solve): 9 ms at 2,000 stocks and 24 ms at 5,000, against 0.3 and 2.1 seconds to solve from scratch (a “cold” start). The same builder stacks periods into a multi-period problem and strategies into one net book, and the whole thing subscribes to the chained tickerplant of <a href="https://rohanshiloh.github.io/exec-tca-stack/">Anatomy of a Fill</a>, so the fills that TCA scores are the fills that move the book.</p>
@@ -558,12 +558,12 @@ q)b:.po.single d                        <span class="c">/ the same builder as be
 <!-- ───────────── THE SOURCE ───────────── -->
 <section class="part" id="source">
   <h2>The Source</h2>
-  <p class="lead">About 450 lines: a C shim of 180 and four q files of about 270, plus the tests and benchmarks that check them. It lives at <a href="https://github.com/rohanshiloh/port-opt-stack">github.com/rohanshiloh/port-opt-stack</a>. OSQP itself is not redistributed: <code>setup.sh</code> downloads the prebuilt v1.0.0 macOS library from <a href="https://github.com/osqp/osqp/releases">OSQP's releases</a> into <code>ext/</code>, and <code>k.h</code> from KX's repository. The C interface it calls is documented at <a href="https://osqp.org/docs/get_started/C.html">osqp.org</a>.</p>
+  <p class="lead">About 450 lines: a C shim of 180 and four q files of about 270, plus the tests and benchmarks that check them. It lives at <a href="https://github.com/rohanshiloh/port-opt-stack">github.com/rohanshiloh/port-opt-stack</a>. OSQP itself is not redistributed: <code>setup.sh</code> downloads the prebuilt v1.0.0 macOS or Linux library from <a href="https://github.com/osqp/osqp/releases">OSQP's releases</a> into <code>ext/</code>, and <code>k.h</code> from KX's repository. The C interface it calls is documented at <a href="https://osqp.org/docs/get_started/C.html">osqp.org</a>.</p>
   <p>The flow is short. <code>port.q</code> turns a dictionary of inputs into triplets and then into OSQP's arrays; <code>qp.q</code> loads the shim and owns the triplet-to-CSC step; <code>c/qosqp.c</code> keeps solvers in slots and hands q a long. <code>opt.q</code> is the live process. <code>bench.q</code> is Lab D1 from a q prompt. The <code>c/test/</code> files exercise the shim without a q process, through a stand-in for the q runtime, and the Python files are an independent mirror of <code>port.q</code>, used to check the formulation against a second solver and to drive the benchmarks.</p>
   <div class="code"><pre>mkdir -p ~/Code &amp;&amp; cd ~/Code
 git clone https://github.com/rohanshiloh/port-opt-stack
 cd port-opt-stack
-./setup.sh</pre></div>
+./setup.sh --mac          <span class="c"># or --linux; add --from-source to build OSQP with CMake</span></pre></div>
   <button class="expandbtn" id="expandbtn" type="button">Expand all files</button>
   <div class="srcfiles">
     <details class="srcfile" id="src-warp">
@@ -579,9 +579,21 @@ cd port-opt-stack
       </div>
     </details>
     <details class="srcfile" id="src-setup">
-      <summary><span class="fn">setup.sh · Makefile · c/osqp_configure.h</span><span class="role">get OSQP for macOS, build the shim, run its tests</span><span class="lc">{{LC:setup.sh}} + {{LC:Makefile}} + {{LC:c/osqp_configure.h}} lines</span></summary>
+      <summary><span class="fn">setup.sh · Makefile · c/osqp_configure.h</span><span class="role">get OSQP for macOS or Linux, build the shim, run its tests</span><span class="lc">{{LC:setup.sh}} + {{LC:Makefile}} + {{LC:c/osqp_configure.h}} lines</span></summary>
       <div class="body">
-        <div class="desc">macOS only. By default <code>setup.sh</code> downloads OSQP's own release build — <code>osqp-v1.0.0-macos-latest.tar.gz</code> on Apple silicon, <code>macos-13</code> on Intel — which holds <code>libosqp.dylib</code> and the public headers but not <code>osqp_configure.h</code>, which <code>osqp.h</code> includes. <code>c/osqp_configure.h</code> supplies it with OSQP's default build options; the two that matter make <code>OSQPInt</code> a 64-bit long and <code>OSQPFloat</code> a double, q's J and F. The shim is linked as a bundle with <code>-undefined dynamic_lookup</code>, because q supplies the <code>k*</code> symbols when it loads it, and with an rpath to <code>ext/osqp/lib</code>, so the dylib is found without installing anything. <code>./setup.sh --from-source</code> clones the same tag and builds a static library with CMake instead: the fallback if the release ever disagrees with the header, which <code>make test</code> would show on its first solve.</div>
+        <div class="desc">macOS (Apple silicon or Intel) or Linux (x86-64), chosen with <code>./setup.sh --mac</code> or <code>./setup.sh --linux</code>; with no flag it is taken from <code>uname</code>, and a flag that does not match the machine stops it, since it builds for the computer it runs on. By default <code>setup.sh</code> downloads OSQP's own release build — <code>osqp-v1.0.0-macos-latest.tar.gz</code> on Apple silicon, <code>macos-13</code> on Intel, <code>ubuntu-latest</code> on Linux — which holds <code>libosqp.dylib</code> or <code>libosqp.so</code> and the public headers, but not <code>osqp_configure.h</code>, which <code>osqp.h</code> includes. <code>c/osqp_configure.h</code> supplies it with OSQP's default build options; the two that matter make <code>OSQPInt</code> a 64-bit long and <code>OSQPFloat</code> a double, q's J and F. It then fetches <code>k.h</code> and runs two <code>make</code> commands: <code>make OS=$OS OSQP=ext/osqp clean test</code>, the shim's own 23 tests with no q process, and <code>make OS=$OS OSQP=ext/osqp</code>, which builds <code>c/qosqp.so</code>. <code>OS</code> is <code>Darwin</code> for <code>--mac</code> and <code>Linux</code> for <code>--linux</code>, and picks the compiler; the command it runs is:
+          <div class="code"><pre data-lang="sh"><span class="c"># macOS: Apple clang, a bundle</span>
+clang -O2 -Wall -Wno-unused-parameter -arch $(uname -m) \
+  -Iext/osqp/include -Ic c/qosqp.c -Lext/osqp/lib -losqp \
+  -Wl,-rpath,'@loader_path/../ext/osqp/lib' \
+  -bundle -undefined dynamic_lookup -o c/qosqp.so
+
+<span class="c"># Linux: gcc, a shared object</span>
+gcc -O2 -Wall -Wno-unused-parameter -fPIC \
+  -Iext/osqp/include -Ic c/qosqp.c -Lext/osqp/lib -losqp \
+  -Wl,-rpath,'$ORIGIN/../ext/osqp/lib' \
+  -shared -o c/qosqp.so</pre></div>
+          On macOS the shim is a <i>bundle</i> with <code>-undefined dynamic_lookup</code>, because q supplies the <code>k*</code> functions of <code>k.h</code> when it loads it; on Linux a shared object may leave them undefined without a flag, so <code>-fPIC -shared</code> is enough. The rpath, <code>@loader_path</code> on macOS and <code>$ORIGIN</code> on Linux, tells the loader to look for libosqp in <code>ext/osqp/lib</code> next to the <code>.so</code>, so nothing is installed system-wide. On Linux, install the compiler first (<code>sudo apt install build-essential curl</code> on Debian or Ubuntu). <code>./setup.sh --from-source</code> clones the same tag and builds a static library with CMake instead, on either system: the fallback for another OSQP version, an ARM Linux machine, or if the release library ever disagrees with the header.</div>
         <div class="code"><pre data-lang="sh">{{SRC:setup.sh}}</pre></div>
         <div class="code"><pre data-lang="sh">{{SRC:Makefile}}</pre></div>
         <div class="code"><pre data-lang="c">{{SRC:c/osqp_configure.h}}</pre></div>
@@ -662,7 +674,7 @@ cd port-opt-stack
   <div class="cols">
     <div class="step" id="step-01">
       <h3><span class="n">01</span>Check q and a Compiler</h3>
-      <p>The shim is a C extension, loaded with <code>2:</code>. On macOS it needs only the Command Line Tools' clang; CMake only for <code>--from-source</code>. q and the library must be the same architecture: <code>m64</code> is Apple silicon.</p>
+      <p>The shim is a C extension, loaded with <code>2:</code>. On macOS it needs only the Command Line Tools' clang; on Linux, gcc and make (<code>build-essential</code>); CMake only for <code>--from-source</code>. q and the library must be the same architecture: <code>m64</code> is Apple silicon, <code>l64</code> is Linux x86-64.</p>
       <div class="code"><pre data-lang="sh">$ xcode-select -p &amp;&amp; clang --version
 $ uname -m                    <span class="c"># arm64</span>
 $ q
@@ -671,7 +683,7 @@ q)(.z.K;.z.o)   <span class="c">/ version; `m64</span></pre></div>
     <div class="step" id="step-02">
       <h3><span class="n">02</span>The Files</h3>
       <div class="code"><pre data-lang="sh">port-opt-stack/
-  setup.sh     <span class="c">/ fetch OSQP's macOS release + k.h, test, build</span>
+  setup.sh     <span class="c">/ fetch OSQP's macOS or Linux release + k.h, test, build</span>
   warp.yaml    <span class="c">/ Warp launch config — the whole stack</span>
   lab.q        <span class="c">/ CTRL-tab helpers: status[], opt"…"</span>
   dump.q       <span class="c">/ optDump[]: every lab + the live state → optData.txt</span>
@@ -686,17 +698,19 @@ q)(.z.K;.z.o)   <span class="c">/ version; `m64</span></pre></div>
   opt.q        <span class="c">/ the live optimiser (port 5015)</span>
   bench.q      <span class="c">/ Lab D1 from q</span>
   bench/       <span class="c">/ model.py · validate.py · runbench.py · multistrat.py</span>
-  ext/osqp/    <span class="c">/ libosqp.dylib + headers, fetched, not committed</span></pre></div>
+  ext/osqp/    <span class="c">/ libosqp.dylib or libosqp.so + headers, fetched, not committed</span></pre></div>
     </div>
     <div class="step" id="step-03">
       <h3><span class="n">03</span>Build</h3>
       <p>Once. It downloads OSQP into <code>ext/</code>, builds, and finishes by running the shim's own tests.</p>
-      <div class="code"><pre data-lang="sh">$ ./setup.sh
+      <div class="code"><pre data-lang="sh">$ ./setup.sh --mac        <span class="c"># or --linux</span>
+setup: mac (arm64), OSQP v1.0.0 release macos-latest
 ...
 ok   x = (0.3, 0.7)
 ...
 all passed
 ready: c/qosqp.so</pre></div>
+      <p>The two lines of <code>setup.sh</code> that compile are <code>make OS=$OS OSQP=ext/osqp clean test</code> and <code>make OS=$OS OSQP=ext/osqp</code>, with <code>OS</code> set by <code>--mac</code> or <code>--linux</code>; on macOS they run <code>clang … -bundle -undefined dynamic_lookup</code>, on Linux <code>gcc … -fPIC -shared</code>, both shown in full under <a href="#src-setup">setup.sh · Makefile</a>. On Linux, install <code>build-essential</code> and <code>curl</code> first; the rest is the same.</p>
     </div>
     <div class="step" id="step-04">
       <h3><span class="n">04</span>Load It</h3>
@@ -1381,7 +1395,7 @@ $ python3 doc/charts.py            <span class="c"># the SVG in this section</sp
     <div class="refitem" id="ref-osqp"><span class="rtag">[2] paper</span><div><span style="color:var(--fg);font-weight:600">Stellato, B., Banjac, G., Goulart, P., Bemporad, A., &amp; Boyd, S. (2020).</span> <a href="https://arxiv.org/abs/1711.08013">OSQP: An Operator Splitting Solver for Quadratic Programs</a>. <i>Mathematical Programming Computation</i>, 12(4), 637–672.<p>The solver: ADMM with a quasi-definite system factorised once, warm starts and factorisation caching, and infeasibility detection from the iterates.</p></div></div>
     <div class="refitem"><span class="rtag">code · OSQP</span><div><a href="https://github.com/osqp/osqp">osqp/osqp</a><p>The C library <code>setup.sh</code> builds, Apache-2.0. The v1 API — <code>osqp_setup</code>, <code>osqp_update_data_vec</code>, <code>osqp_update_data_mat</code>, <code>osqp_warm_start</code> — is everything the shim calls.</p></div></div>
     <div class="refitem" id="ref-clarabel"><span class="rtag">[3] paper</span><div><span style="color:var(--fg);font-weight:600">Goulart, P. J., &amp; Chen, Y. (2026).</span> <a href="https://arxiv.org/abs/2405.12762">Clarabel: An interior-point solver for conic programs with quadratic objectives</a>. <i>Mathematical Programming Computation</i>.<p>The cold-solve comparison throughout, and the solver for every cone in G2.</p></div></div>
-    <div class="refitem"><span class="rtag">get · OSQP</span><div><a href="https://github.com/osqp/osqp/releases">osqp/osqp — releases</a> · <a href="https://osqp.org/docs/get_started/C.html">osqp.org — C</a><p>Where <code>setup.sh</code> gets the v1.0.0 macOS library, and the documentation of the C interface the shim calls.</p></div></div>
+    <div class="refitem"><span class="rtag">get · OSQP</span><div><a href="https://github.com/osqp/osqp/releases">osqp/osqp — releases</a> · <a href="https://osqp.org/docs/get_started/C.html">osqp.org — C</a><p>Where <code>setup.sh</code> gets the v1.0.0 macOS and Linux libraries, and the documentation of the C interface the shim calls.</p></div></div>
     <div class="refitem"><span class="rtag">bench · OSQP</span><div><a href="https://github.com/osqp/osqp_benchmarks">osqp/osqp_benchmarks</a><p>OSQP against GUROBI, MOSEK, ECOS and qpOASES on generated, Maros–Meszaros and SuiteSparse problems, plus parametric portfolio, Lasso and MPC sets with and without warm starts.</p></div></div>
     <div class="refitem"><span class="rtag">bench · qpbenchmark</span><div><a href="https://github.com/qpsolvers/qpbenchmark">qpsolvers/qpbenchmark</a><p>Standard QP test sets and reports. A useful second opinion, but its problems are not portfolios: benchmark on your own shape.</p></div></div>
     <div class="refitem"><span class="rtag">solver · HiGHS</span><div><a href="https://highs.dev/">HiGHS</a><p>MIT-licensed LP and MIP; the default in MATLAB and SciPy. Where cardinality and CVaR at scale go.</p></div></div>
