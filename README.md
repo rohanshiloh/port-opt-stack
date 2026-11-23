@@ -2,7 +2,7 @@
 
 **Weights in Motion** — intraday portfolio optimisation in q/kdb+ on OSQP.
 Multi-Strategy & Multi-Period Portfolio Optimization with Constraints.
-Published at https://rohanshiloh.github.io/port-opt-stack/ (this repo's `index.html`).
+**Read the document: [rohanshiloh.github.io/port-opt-stack](https://rohanshiloh.github.io/port-opt-stack/)** (built from this repo's `index.html`).
 
 A C shim (`c/qosqp.c`) that q loads with `2:`; problem builders in `port.q` (single period,
 multi-period `.po.mpo`, multi-strategy `.po.mso`); a live optimiser (`opt.q`) behind exec-tca-stack's
