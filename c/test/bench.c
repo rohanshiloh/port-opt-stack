@@ -16,6 +16,7 @@ K qp_setup(K,K,K,K,K,K), qp_solve(K), qp_update(K,K,K,K), qp_free(K);
 K nil(void), dget(K,const char*);
 static double now(void){ struct timespec t; clock_gettime(CLOCK_MONOTONIC,&t); return t.tv_sec+1e-9*t.tv_nsec; }
 static long rssKB(void){ FILE* f=fopen("/proc/self/status","r"); char b[256]; long v=0;   /* current RSS, kB */
+  if(!f) return 0;                                   /* no /proc on macOS: memory reads 0 there */
   while(fgets(b,sizeof b,f)){ if(!strncmp(b,"VmRSS:",6)){ v=atol(b+6); break; } }
   fclose(f); return v; }
 static K rdJ(FILE*f,J n){ K x=ktn(KJ,n); if(fread(kJ(x),8,n,f)!=(size_t)n) exit(2); return x; }

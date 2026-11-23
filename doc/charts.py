@@ -205,7 +205,7 @@ def live_chart(mode):
     for k, s in enumerate(syms):
         r, c = divmod(k, 4); x0 = c * PW + 44; x1 = (c + 1) * PW - 10; y0 = top + r * PH + 30; y1 = top + (r + 1) * PH - 26
         fx = lambda t: x0 + t / 60 / tmax * (x1 - x0); fy = lambda v: y1 - (v - lo) / (hi - lo) * (y1 - y0)
-        feat = s in ("NVDA", "JPM")
+        feat = s in ("NVDA", "JPM") + {"single": ("MSFT", "META"), "mpo": ("MSFT", "META"), "mso": ("GOOGL",)}[mode]   # the two you asked about, and the ones each caption discusses
         o.append(f'<rect x="{c*PW+4}" y="{top+r*PH+2}" width="{PW-8}" height="{PH-6}" rx="6" fill="var(--sheet)" stroke="{"var(--accent)" if feat else "var(--line)"}" stroke-width="{1.4 if feat else 1}"/>')
         gap = sum(abs(p[2] - p[1]) for p in by[s]) / len(by[s])
         o.append(f'<text x="{x0}" y="{top+r*PH+22}" {SANS} font-size="13" font-weight="600" fill="var(--fg)">{s}</text>'

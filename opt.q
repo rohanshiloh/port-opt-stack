@@ -39,7 +39,7 @@ b:$[MODE=`single; .po.single d;
 / 0.95 <= 1'h <= 1: on every period's budget row in mpo, on the net book's in mso
 bud:$[MODE=`mpo; b[`rB]+(b`M1)*til H; b`rB];
 b[`l]:@[b`l;bud;:;0.95];
-BOX:$[MODE=`mso; (0f;1f); (d`lo;d`hi)];                   / the net book's box in mso is 0..1
+BOX:$[MODE=`mso; (0f;sum CAPS*(count STRATS)#enlist d`hi); (d`lo;d`hi)];   / mso: the net can reach only sum c_s hi_s
 CO:$[MODE=`mso; b`co; 0];                                 / where the net book's columns start
 hs:.po.setup[b;.qp.S count uni];
 r:.qp.solve hs;

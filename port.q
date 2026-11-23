@@ -132,7 +132,8 @@
 .po.alpha:{[b;alpha] b[`q]:@[b`q;til b`n;:;neg alpha]; b};
 
 / a new risk aversion scales every value in P: same sparsity, so updmat, not setup
-.po.lambda:{[b;d;lam] d[`lambda]:lam; b2:.po.blocks[d;0;0;1b];
+.po.lambda:{[b;d;lam] if[any `H`S in key b; '"lambda: single-period problems only (rebuild mpo and mso)"];
+  d[`lambda]:lam; b2:.po.blocks[d;0;0;1b];
   o:iasc b2[`PI]+b2[`N]*b2`PJ;                          / the csc order .qp.csc used
   b[`P;4]:b2[`PV] o; b };
 
