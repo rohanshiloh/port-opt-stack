@@ -1,0 +1,8 @@
+ext/
+c/k.h
+c/qosqp.so
+c/test/qtest
+c/test/qbench
+__pycache__/
+.DS_Store
+optData.txt

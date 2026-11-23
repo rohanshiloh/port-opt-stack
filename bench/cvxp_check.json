@@ -1,0 +1,38 @@
+[
+ {
+  "n": 300,
+  "k": 10,
+  "H": 1,
+  "osqp_status": "solved",
+  "osqp_iter": 7725,
+  "max_trade_diff_avg_weights": 0.001570451417304622,
+  "turnover_ours": 0.10000920280093387,
+  "turnover_cvxportfolio": 0.10000001376946276,
+  "names_traded_ours": 18,
+  "names_traded_cvxportfolio": 18
+ },
+ {
+  "n": 300,
+  "k": 10,
+  "H": 2,
+  "osqp_status": "solved",
+  "osqp_iter": 7300,
+  "max_trade_diff_avg_weights": 0.0010279753286445564,
+  "turnover_ours": 0.10000687413144674,
+  "turnover_cvxportfolio": 0.10000002831076436,
+  "names_traded_ours": 18,
+  "names_traded_cvxportfolio": 18
+ },
+ {
+  "n": 300,
+  "k": 10,
+  "H": 4,
+  "osqp_status": "solved",
+  "osqp_iter": 13325,
+  "max_trade_diff_avg_weights": 0.0011346956995037655,
+  "turnover_ours": 0.10000777655035545,
+  "turnover_cvxportfolio": 0.10000000992234365,
+  "names_traded_ours": 18,
+  "names_traded_cvxportfolio": 18
+ }
+]

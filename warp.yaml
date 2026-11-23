@@ -1,0 +1,63 @@
+---
+# Warp launch configuration: port-opt-stack behind exec-tca-stack, one process per tab.
+# Install: cp warp.yaml ~/.warp/launch_configurations/port-opt-stack.yaml
+# Run:     Command Palette → "Launch Configuration" → port-opt-stack
+# The first five tabs and FEED are exec-tca-stack's (Anatomy of a Fill), run from its
+# folder; OPT and CTRL are this repo's. The printf sets the terminal title; the sleeps
+# let each subscriber start after the process it connects to is listening.
+#   blue = feed → tickerplant   green = stores   magenta = TCA subtree
+#   cyan = the optimiser        yellow = you
+name: port-opt-stack
+windows:
+  - tabs:
+      - title: TP 5010
+        color: blue
+        layout:
+          cwd: ~/Code/exec-tca-stack
+          commands:
+            - exec: printf "\033]0;TP 5010\007"; q tick.q sym ./log -p 5010
+      - title: RDB 5011
+        color: green
+        layout:
+          cwd: ~/Code/exec-tca-stack
+          commands:
+            - exec: printf "\033]0;RDB 5011\007"; sleep 1 && q tick/r.q :5010 -p 5011
+      - title: HDB 5012
+        color: green
+        layout:
+          cwd: ~/Code/exec-tca-stack
+          commands:
+            - exec: printf "\033]0;HDB 5012\007"; q log/sym -p 5012
+      - title: CHAIN 5013
+        color: magenta
+        layout:
+          cwd: ~/Code/exec-tca-stack
+          commands:
+            - exec: printf "\033]0;CHAIN 5013\007"; sleep 1 && q tick/chainedtick.q :5010 -p 5013
+      - title: TCA 5014
+        color: magenta
+        layout:
+          cwd: ~/Code/exec-tca-stack
+          commands:
+            - exec: printf "\033]0;TCA 5014\007"; sleep 2 && q tca.q :5013 -p 5014
+      - title: OPT 5015
+        color: cyan
+        layout:
+          cwd: ~/Code/port-opt-stack
+          commands:
+            # add -mode mpo (3 periods ahead) or -mode mso (4 strategy books, one net book); default single
+            - exec: printf "\033]0;OPT 5015\007"; sleep 2 && q opt.q :5013 -p 5015 -mode single
+      - title: FEED
+        color: blue
+        layout:
+          cwd: ~/Code/exec-tca-stack
+          commands:
+            - exec: printf "\033]0;FEED\007"; sleep 3 && q feed.q :5010
+      - title: CTRL
+        color: yellow
+        layout:
+          cwd: ~/Code/port-opt-stack
+          commands:
+            - exec: printf "\033]0;CTRL\007"; q lab.q
+    active_tab_index: 7
+active_window_index: 0

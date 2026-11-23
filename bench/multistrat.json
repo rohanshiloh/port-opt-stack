@@ -1,0 +1,71 @@
+[
+ {
+  "n": 1000,
+  "S": 4,
+  "overlap": 0.0,
+  "separate": {
+   "alpha_bps": 426.3547744789605,
+   "risk_bps": 292.08031010593055,
+   "netCost_bps": 1.5928513086084468,
+   "grossCost_bps": 1.603253093484445,
+   "netTurnover": 0.09525115508674169,
+   "grossTurnover": 0.09999995687368982,
+   "utility_bps": 132.6816130644215
+  },
+  "joint": {
+   "alpha_bps": 447.0397795598592,
+   "risk_bps": 291.7894101828347,
+   "netCost_bps": 1.8624791912510412,
+   "grossCost_bps": 8.953565255592503,
+   "netTurnover": 0.0999999718300113,
+   "grossTurnover": 0.4148146136112342,
+   "utility_bps": 153.38789018577353
+  }
+ },
+ {
+  "n": 1000,
+  "S": 4,
+  "overlap": 0.4,
+  "separate": {
+   "alpha_bps": 433.8177688687055,
+   "risk_bps": 301.19320974955366,
+   "netCost_bps": 1.7565435510399936,
+   "grossCost_bps": 1.7239694676559887,
+   "netTurnover": 0.09683598109401989,
+   "grossTurnover": 0.09999995643693615,
+   "utility_bps": 130.8680155681119
+  },
+  "joint": {
+   "alpha_bps": 458.9201063526546,
+   "risk_bps": 303.2880812768702,
+   "netCost_bps": 2.0512131049999573,
+   "grossCost_bps": 10.050897261929736,
+   "netTurnover": 0.09999995997925643,
+   "grossTurnover": 0.4412449809732195,
+   "utility_bps": 153.5808119707845
+  }
+ },
+ {
+  "n": 1000,
+  "S": 4,
+  "overlap": 0.8,
+  "separate": {
+   "alpha_bps": 443.6298415544093,
+   "risk_bps": 309.76959932450416,
+   "netCost_bps": 2.2018575380494854,
+   "grossCost_bps": 1.8321007700432332,
+   "netTurnover": 0.09999991767674778,
+   "grossTurnover": 0.0999999321568386,
+   "utility_bps": 131.6583846918557
+  },
+  "joint": {
+   "alpha_bps": 476.97239665417675,
+   "risk_bps": 309.0875617030555,
+   "netCost_bps": 1.9798214679749824,
+   "grossCost_bps": 13.893346993835632,
+   "netTurnover": 0.0999999896021797,
+   "grossTurnover": 0.5969930718492514,
+   "utility_bps": 165.90501348314632
+  }
+ }
+]
