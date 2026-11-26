@@ -446,6 +446,59 @@ q)b:.po.single d                        <span class="c">/ the same builder as be
       <tr><td><b>Industry, country</b></td><td>Membership: 0 or 1, or a split</td><td>Most of \(k\); banks move with banks</td></tr>
     </tbody>
   </table></div>
+
+  <h4 class="sub" id="c-indicators">Inside Each Factor: the Indicators</h4>
+  <p>A style factor is a weighted sum of a few <b>indicators</b>, each standardised across the stocks first (mean zero, unit spread) so they can be added. The table lists the indicators of Barra's long-horizon models, the factors Axioma's world-wide model uses, and the academic factors they echo. The coloured box is the factor group, following MSCI FaCS; the plain tags say where the data comes from and which models use it. The <code>q</code> column is a suggested column name for a table of indicators, one row per stock and date. "Enters with a minus sign" means a high value lowers the exposure: high accruals mean low earnings quality.</p>
+  <style>.ichip{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:500;line-height:1.3;padding:1px 6px;margin:1px 2px 1px 0;border:1px solid;border-radius:3px;white-space:nowrap} .itags{min-width:180px}</style>
+  <p style="line-height:2"><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span> <span class="ichip" style="color:var(--euc);border-color:var(--euc);background:color-mix(in srgb,var(--euc) 12%,transparent)">Yield</span> <span class="ichip" style="color:var(--lav);border-color:var(--lav);background:color-mix(in srgb,var(--lav) 12%,transparent)">Size</span> <span class="ichip" style="color:var(--apricot);border-color:var(--apricot);background:color-mix(in srgb,var(--apricot) 12%,transparent)">Momentum</span> <span class="ichip" style="color:var(--rose);border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)">Volatility</span> <span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span> <span class="ichip" style="color:var(--mauve);border-color:var(--mauve);background:color-mix(in srgb,var(--mauve) 12%,transparent)">Growth</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,transparent)">Liquidity</span> <span class="ichip" style="color:var(--sig);border-color:var(--sig);background:color-mix(in srgb,var(--sig) 12%,transparent)">Sentiment</span><br><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> market data: prices, volumes, shares <span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> company accounts <span class="ichip" style="color:var(--fg);border-color:var(--fg)">Analyst</span> consensus forecasts <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> which models use it</p>
+  <div class="tbl"><table class="wide">
+    <thead><tr><th>Group</th><th>Factor</th><th>Indicator · <code>q</code> column</th><th>How it is computed</th><th>Data · models</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Book-to-Price</b></td><td>Book-to-price<br><code>bp</code></td><td>Book value of common equity ÷ market capitalisation</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Fama–French HML</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Earnings Yield</b></td><td>Earnings-to-price<br><code>ep</code></td><td>Trailing 12-month earnings ÷ market capitalisation</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Earnings Yield</b></td><td>Predicted earnings-to-price<br><code>ep_fwd</code></td><td>Consensus forecast earnings for the next 12 months ÷ price</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Analyst</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Earnings Yield</b></td><td>Cash earnings-to-price<br><code>cep</code></td><td>Trailing cash earnings (earnings plus depreciation and other non-cash items) ÷ price</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Earnings Yield</b></td><td>Enterprise multiple<br><code>ebitda_ev</code></td><td>EBITDA ÷ enterprise value (market cap + debt − cash)</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Long-Term Reversal</b></td><td>Long-term relative strength<br><code>lt_rstr</code></td><td>Cumulative excess return over roughly the last three years, leaving out the most recent year; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--accent);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)">Value</span></td><td><b>Long-Term Reversal</b></td><td>Long-term historical alpha<br><code>lt_alpha</code></td><td>Intercept of a long-window regression of the stock's excess return on the market's</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--euc);border-color:var(--euc);background:color-mix(in srgb,var(--euc) 12%,transparent)">Yield</span></td><td><b>Dividend Yield</b></td><td>Dividend-to-price<br><code>div_yld</code></td><td>Dividends per share over the last 12 months ÷ price</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--euc);border-color:var(--euc);background:color-mix(in srgb,var(--euc) 12%,transparent)">Yield</span></td><td><b>Dividend Yield</b></td><td>Predicted dividend-to-price<br><code>div_yld_fwd</code></td><td>Consensus forecast dividends for the next 12 months ÷ price</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Analyst</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--lav);border-color:var(--lav);background:color-mix(in srgb,var(--lav) 12%,transparent)">Size</span></td><td><b>Size</b></td><td>Log market capitalisation<br><code>lncap</code></td><td>Natural log of price × shares outstanding</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Fama–French SMB</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--lav);border-color:var(--lav);background:color-mix(in srgb,var(--lav) 12%,transparent)">Size</span></td><td><b>Mid Capitalisation</b></td><td>Cube of size<br><code>midcap</code></td><td>The size exposure cubed, then regressed on size and the residual kept: mid-caps against both ends</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--apricot);border-color:var(--apricot);background:color-mix(in srgb,var(--apricot) 12%,transparent)">Momentum</span></td><td><b>Momentum</b></td><td>Relative strength, 12 months<br><code>rstr</code></td><td>Excess return over the past 12 months, skipping the latest month, with recent months weighted more</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Carhart UMD</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--apricot);border-color:var(--apricot);background:color-mix(in srgb,var(--apricot) 12%,transparent)">Momentum</span></td><td><b>Momentum</b></td><td>Historical alpha<br><code>hist_alpha</code></td><td>Intercept of the beta regression over the last year</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--apricot);border-color:var(--apricot);background:color-mix(in srgb,var(--apricot) 12%,transparent)">Momentum</span></td><td><b>Short-Term Momentum</b></td><td>One-month return<br><code>rstr_1m</code></td><td>Return over the latest month; tends to reverse</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--rose);border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)">Volatility</span></td><td><b>Beta</b></td><td>Historical beta<br><code>beta</code></td><td>Slope of the stock's excess return regressed on the market's, over one to two years</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--rose);border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)">Volatility</span></td><td><b>Residual Volatility</b></td><td>Historical sigma<br><code>hsigma</code></td><td>Standard deviation of the residuals of that beta regression</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--rose);border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)">Volatility</span></td><td><b>Residual Volatility</b></td><td>Daily standard deviation<br><code>dastd</code></td><td>Standard deviation of daily excess returns, recent days weighted more</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--rose);border-color:var(--rose);background:color-mix(in srgb,var(--rose) 12%,transparent)">Volatility</span></td><td><b>Residual Volatility</b></td><td>Cumulative range<br><code>cmra</code></td><td>Highest minus lowest cumulative log return over the last 12 months</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Profitability</b></td><td>Return on assets<br><code>roa</code></td><td>Earnings ÷ total assets</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Profitability</b></td><td>Return on equity<br><code>roe</code></td><td>Earnings ÷ book equity</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">MSCI Quality</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Profitability</b></td><td>Gross profitability<br><code>gp_assets</code></td><td>(Sales − cost of goods sold) ÷ total assets</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Novy-Marx (2013)</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Profitability</b></td><td>Gross margin<br><code>gross_margin</code></td><td>(Sales − cost of goods sold) ÷ sales</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Profitability</b></td><td>Asset turnover<br><code>asset_turn</code></td><td>Sales ÷ total assets</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Profitability</b></td><td>Operating profitability<br><code>op_prof</code></td><td>(Revenue − COGS − SG&amp;A − interest) ÷ book equity</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Fama–French RMW</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Leverage</b></td><td>Market leverage<br><code>mlev</code></td><td>(Market cap + preferred + long-term debt) ÷ market cap</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Leverage</b></td><td>Book leverage<br><code>blev</code></td><td>(Book equity + preferred + long-term debt) ÷ book equity</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Leverage</b></td><td>Debt-to-assets<br><code>dtoa</code></td><td>Total debt ÷ total assets; Axioma also uses debt-to-equity</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Earnings Quality</b></td><td>Accruals, balance sheet<br><code>acc_bs</code></td><td>Change in non-cash working capital less depreciation, ÷ total assets; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Sloan (1996)</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Earnings Quality</b></td><td>Accruals, cash flow<br><code>acc_cf</code></td><td>Earnings minus operating cash flow, ÷ total assets; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Sloan (1996)</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Earnings Quality</b></td><td>Cash earnings-to-earnings<br><code>cetoe</code></td><td>Cash earnings ÷ reported earnings: how much of the profit is cash</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Earnings Variability</b></td><td>Variability of earnings, sales, cash flow<br><code>evar</code></td><td>Standard deviation over the last five years ÷ the mean; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">MSCI Quality</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Earnings Variability</b></td><td>Forecast dispersion<br><code>eps_disp</code></td><td>Spread of analysts' earnings forecasts ÷ price</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Analyst</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Investment Quality</b></td><td>Total asset growth<br><code>agro</code></td><td>Growth rate of total assets over the last five years; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Fama–French CMA</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Investment Quality</b></td><td>Issuance growth<br><code>igro</code></td><td>Growth rate of shares outstanding; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)">Quality</span></td><td><b>Investment Quality</b></td><td>Capital expenditure growth<br><code>cxgro</code></td><td>Growth rate of capital expenditure; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--mauve);border-color:var(--mauve);background:color-mix(in srgb,var(--mauve) 12%,transparent)">Growth</span></td><td><b>Growth</b></td><td>Earnings per share growth<br><code>egro</code></td><td>Slope of a regression of five years of EPS on time ÷ average EPS</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--mauve);border-color:var(--mauve);background:color-mix(in srgb,var(--mauve) 12%,transparent)">Growth</span></td><td><b>Growth</b></td><td>Sales per share growth<br><code>sgro</code></td><td>The same regression on sales per share</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Fundamental</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--mauve);border-color:var(--mauve);background:color-mix(in srgb,var(--mauve) 12%,transparent)">Growth</span></td><td><b>Growth</b></td><td>Predicted long-term growth<br><code>egrlf</code></td><td>Consensus long-term (3–5 year) earnings growth forecast</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Analyst</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--muted);border-color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,transparent)">Liquidity</span></td><td><b>Liquidity</b></td><td>Share turnover, 1, 3 and 12 months<br><code>stom · stoq · stoa</code></td><td>Log of the shares traded ÷ shares outstanding, per month, averaged over each window</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--muted);border-color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,transparent)">Liquidity</span></td><td><b>Liquidity</b></td><td>Annualised traded value ratio<br><code>atvr</code></td><td>Traded value ÷ market cap over a year, recent days weighted more</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--sig);border-color:var(--sig);background:color-mix(in srgb,var(--sig) 12%,transparent)">Sentiment</span></td><td><b>Sentiment</b></td><td>Analyst revisions<br><code>rev</code></td><td>Net upgrades of earnings forecasts over the last few months</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Analyst</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra US Total Market</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Axioma</span></td></tr>
+      <tr><td><span class="ichip" style="color:var(--sig);border-color:var(--sig);background:color-mix(in srgb,var(--sig) 12%,transparent)">Sentiment</span></td><td><b>Short Interest</b></td><td>Short interest ratio<br><code>short_int</code></td><td>Shares sold short ÷ float; enters with a minus sign</td><td class="itags"><span class="ichip" style="color:var(--fg);border-color:var(--fg)">Price</span> <span class="ichip" style="color:var(--muted);border-color:var(--muted)">Barra US Total Market</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="notice"><b>Weights and windows vary.</b> Each vendor picks its own indicator weights, look-back windows and half-lives, and changes them between model versions; the definitions above give the idea, not the exact recipe. Barra's are in its model documents and the <a href="#ref-barra">handbook</a>; Axioma's in its model notes. Sources: MSCI, <a href="https://www.msci.com/documents/10199/dce5428f-a634-4443-a0e8-6f0b345ec43d">Barra UK Total Market Equity Model</a> (the GEMLT family's indicator list); MSCI FaCS (the eight groups); Axioma AXWW4 factor definitions; Fama &amp; French (1993, 2015); Carhart (1997); Novy-Marx (2013); Sloan (1996).</p>
   <p>How it ties to the rest of this document:</p>
   <ul>
     <li><b>Risk</b> (1.2): \(V = XFX^{\top} + \Delta\) throughout. A vendor model supplies \(X\), \(F\) and \(\Delta\), with \(k\) around 50–80.</li>
@@ -1180,13 +1233,13 @@ K qp_solve(K h){
   OSQPInfo* f=s-&gt;info; OSQPSolution* z=s-&gt;solution;
   K x=ktn(KF,dimN[i]); memcpy(kF(x),z-&gt;x,dimN[i]*sizeof(F));
   K y=ktn(KF,dimM[i]); memcpy(kF(y),z-&gt;y,dimM[i]*sizeof(F));
-  K keys=ktn(KS,11);
+  K keys=ktn(KS,13);
   const char* nm[]={"status","statusVal","iter","obj","primRes","dualRes",
-                    "setupTime","solveTime","runTime","x","y"};
-  for(int j=0;j&lt;11;j++) kS(keys)[j]=ss((S)nm[j]);
-  K vals=knk(11, ks(f-&gt;status), kj(f-&gt;status_val), kj(f-&gt;iter), kf(f-&gt;obj_val),
+                    "setupTime","solveTime","runTime","rhoUpdates","rhoEstimate","x","y"};
+  for(int j=0;j&lt;13;j++) kS(keys)[j]=ss((S)nm[j]);
+  K vals=knk(13, ks(f-&gt;status), kj(f-&gt;status_val), kj(f-&gt;iter), kf(f-&gt;obj_val),
              kf(f-&gt;prim_res), kf(f-&gt;dual_res), kf(f-&gt;setup_time), kf(f-&gt;solve_time),
-             kf(f-&gt;run_time), x, y);
+             kf(f-&gt;run_time), kj(f-&gt;rho_updates), kf(f-&gt;rho_estimate), x, y);
   return xD(keys,vals);
 }
 
@@ -1487,7 +1540,7 @@ K qp_ver(K x){ (void)x; return kp((S)osqp_version()); }</pre></div>
       </div>
     </details>
     <details class="srcfile" id="src-opt">
-      <summary><span class="fn">opt.q</span><span class="role">the live optimiser — a chained-TP subscriber</span><span class="lc">104 lines</span></summary>
+      <summary><span class="fn">opt.q</span><span class="role">the live optimiser — a chained-TP subscriber</span><span class="lc">126 lines</span></summary>
       <div class="body">
         <div class="desc">Subscribes to <code>execs</code> on exec-tca-stack's chained tickerplant, turns each fill into a weight change, and on a 250 ms timer applies whatever has accumulated and re-solves warm. The turnover budget resets every minute; a solve that does not come back <code>solved</code> resets it and tries once more. Every solve is logged in <code>solves</code>.</div>
         <div class="code"><pre>/ port-opt-stack : the live optimiser, a subscriber of exec-tca-stack's chained TP
@@ -1553,8 +1606,24 @@ logHist:{ n:count uni; h0v:(b`l) b[`rT]+til n;
        MODE=`mso; 4#.po.books[b;lastX];
                   4#enlist n#0n];
   `hist insert (n#.z.n; uni; h0v; cur`h; ex 0; ex 1; ex 2; ex 3) };
-solves:([] time:`timespan$(); nfills:`long$(); iter:`long$(); ms:`float$();
-  status:`symbol$(); turnoverLeft:`float$(); objective:`float$());
+/ one row per resolve. A failed first attempt is retried once with a wider tau: both attempts are kept.
+/ primRes and dualRes are the final attempt's; epsPrim and epsDual are OSQP's stopping thresholds for them
+/ (eps_abs + eps_rel * the problem's norms, with z taken as Ax clamped to [l,u]). rhoEstimate is OSQP's
+/ estimate of a good rho, not necessarily the rho it used; rhoUpdates counts refactorisations from adaptive rho.
+solves:([] time:`timespan$(); nfills:`long$(); windowReset:`boolean$(); retried:`boolean$();
+  status1:`symbol$(); iter1:`long$(); ms1:`float$(); status2:`symbol$(); iter2:`long$(); ms2:`float$();
+  totalMs:`float$(); status:`symbol$(); iter:`long$(); primRes:`float$(); epsPrim:`float$();
+  dualRes:`float$(); epsDual:`float$(); rhoUpdates:`long$(); rhoEstimate:`float$();
+  turnoverLeft:`float$(); objective:`float$());
+/ one row each time tau is widened to repair an infeasible problem
+widen:([] time:`timespan$(); tauLeftBefore:`float$(); tauAfter:`float$(); windowReset:`boolean$());
+EPS:.qp.S[count uni]`eps_abs`eps_rel;
+
+/ OSQP's stopping thresholds for this problem at solution (x;y): b holds A and the upper triangle of P as triplets
+thresholds:{[x;y] Ax:@[b[`M]#0f;b`I;+;b[`V]*x b`J]; z:b[`l]|b[`u]&amp;Ax;
+  o:where b[`PI]&lt;&gt;b`PJ; Px:@[b[`N]#0f;b`PI;+;b[`PV]*x b`PJ]; Px:@[Px;b[`PJ] o;+;(b[`PV]*x b`PI) o];
+  Aty:@[b[`N]#0f;b`J;+;b[`V]*y b`I];
+  (EPS[0]+EPS[1]*max abs[Ax],abs z; EPS[0]+EPS[1]*max abs[Px],abs[Aty],abs b`q)};
 target:{([sym:uni] h0:(b`l) b[`rT]+til b`n; h:cur`h; tradeShares:`long$NAV*(cur[`h]-(b`l) b[`rT]+til b`n)%px uni)};
 
 / the least turnover that brings h0 back inside lo &lt;= h &lt;= hi and 0.95 &lt;= 1'h &lt;= 1
@@ -1574,16 +1643,22 @@ upd:{[t;x] if[not t=`execs; :()];
 resolve:{
   dh:value pend; pend::uni!(count uni)#0f;
   b::.po.fill[b;dh];
-  if[REBAL&lt;.z.n-lastRebal; b::.po.retau[b;d`tau]; lastRebal::.z.n];
+  reset:REBAL&lt;.z.n-lastRebal;
+  if[reset; b::.po.retau[b;d`tau]; lastRebal::.z.n];
   .qp.update[hs;::;b`l;b`u];
-  t0:.z.p; r::.qp.solve hs; ms:1e-6*`long$.z.p-t0;
+  t0:.z.p; r::.qp.solve hs; t1:.z.p; r1:r; retried:not `solved=r`status;
   / infeasible: the random fills from the feed walked h0 outside the box or the budget band
   / by more than tau can repair. Widen tau to what the repair needs, plus a margin, solve again
-  if[not `solved=r`status; b::.po.retau[b;tauNeed[]]; lastRebal::.z.n;
+  if[retried; tb:(b`u) b`rO; tn:tauNeed[]; b::.po.retau[b;tn]; lastRebal::.z.n;
+     `widen insert (.z.n; tb; tn; reset);
      .qp.update[hs;::;b`l;b`u]; r::.qp.solve hs];
+  t2:.z.p; ms1:1e-6*`long$t1-t0; ms2:$[retried;1e-6*`long$t2-t1;0n];
   if[`solved=r`status; lastX::r`x; cur::.po.split[b;CO _ lastX];              / keep the last good target otherwise
      if[HISTEVERY&lt;.z.n-lastHist; lastHist::.z.n; logHist[]]];
-  `solves insert (.z.n; nFill; r`iter; ms; r`status; (b`u) b`rO; r`obj) };
+  th:thresholds[r`x;r`y];
+  `solves insert (.z.n; nFill; reset; retried; r1`status; r1`iter; ms1;
+    $[retried;r`status;`]; $[retried;r`iter;0N]; ms2; 1e-6*`long$t2-t0; r`status; r`iter;
+    r`primRes; th 0; r`dualRes; th 1; r`rhoUpdates; r`rhoEstimate; (b`u) b`rO; r`obj) };
 
 
 .z.ts:{ if[any 0&lt;&gt;value pend; resolve[]] };
@@ -1593,7 +1668,7 @@ resolve:{
 TP:$[count tps:.z.x where .z.x like ":*"; first tps; ":5013"];
 .u.rep enlist (hopen `$":",TP)".u.sub[`execs;`]";
 system"t 250";
--1"opt → mode ",string[MODE]," · subscribed @ ",TP,"   try:  target[]   -10#solves   select avg ms, max ms, avg iter from solves   exposures[]",$[MODE=`mpo;"   plan[]";MODE=`mso;"   books[]";""];</pre></div>
+-1"opt → mode ",string[MODE]," · subscribed @ ",TP,"   try:  target[]   -10#solves   select avg totalMs, max totalMs, avg iter from solves   exposures[]",$[MODE=`mpo;"   plan[]";MODE=`mso;"   books[]";""];</pre></div>
       </div>
     </details>
     <details class="srcfile" id="src-benchq">
@@ -1639,12 +1714,12 @@ up:{@[{hclose hopen x; `up};x;`down]};
 status:{update state:up each port from procs};
 ask:{[port;x] h:hopen port; r:h x; hclose h; r};
 opt:ask 5015;                                  / opt"target[]"   opt"-10#solves"
-solveStats:{opt"select n:count i, avgMs:avg ms, maxMs:max ms, avgIter:avg iter by status from solves"};
+solveStats:{opt"select n:count i, avgMs:avg totalMs, maxMs:max totalMs, retries:sum retried, avgIter:avg iter by status from solves"};
 -1"lab → status[]   opt\"target[]\"   solveStats[]   ask[5014;\"…\"]";</pre></div>
       </div>
     </details>
     <details class="srcfile" id="src-dump">
-      <summary><span class="fn">dump.q</span><span class="role">write optimiser diagnostics to optData.txt</span><span class="lc">163 lines</span></summary>
+      <summary><span class="fn">dump.q</span><span class="role">write optimiser diagnostics to optData.txt</span><span class="lc">176 lines</span></summary>
       <div class="body">
         <div class="desc"><code>\l dump.q</code> then <code>optDump[]</code> in the OPT tab writes everything needed for analysis to <code>optData.txt</code>: the live optimiser's inputs, solve log and target; every lab from A1 to D2, run on fresh solver handles so the live one is never touched; and the other processes' subscriber counts. Each query is trapped, so one failure prints its error and the rest still run. It takes about a minute; fills that arrive meanwhile queue and are applied when it returns. Names it makes start with <code>dmp</code>, so nothing of <code>opt.q</code>'s is overwritten.</div>
         <div class="code"><pre class="tall">/ port-opt-stack : write optimiser diagnostics to optData.txt
@@ -1692,10 +1767,19 @@ optQueries:(
   "`uni`NAV`nFill`rdbFills`timerMs`rebal!(uni;NAV;nFill;rdbFills[];system\"t\";REBAL)";
   "count solves";
   "-10#solves";
-  "select n:count i, medMs:med ms, p90Ms:pct[ms;0.9], maxMs:max ms, avgIter:avg iter, maxIter:max iter, minTauLeft:min turnoverLeft by status from solves";
-  "select n:count i, avgMs:avg ms, avgIter:avg iter, lastFills:last nfills by 0D00:01 xbar time from solves";
+  "select n:count i, medMs:med totalMs, p90Ms:pct[totalMs;0.9], maxMs:max totalMs, avgIter:avg iter, maxIter:max iter, minTauLeft:min turnoverLeft by status from solves";
+  "select n:count i, p50Ms:pct[totalMs;0.5], p90Ms:pct[totalMs;0.9], p99Ms:pct[totalMs;0.99], avgIter:avg iter, retries:sum retried, notSolved:sum not status=`solved, lastFills:last nfills by 0D00:01 xbar time from solves";
   "select n:count i by iterBucket:100*iter div 100 from solves";
-  "pct[solves`ms;0 .1 .25 .5 .75 .9 .99 1]";
+  "pct[solves`totalMs;0 .1 .25 .5 .75 .9 .99 1]";
+  / ── solve health: retries, both attempts, residuals against OSQP's own thresholds, adaptive rho
+  "select n:count i, firstFailed:sum retried, retrySolved:sum retried and status=`solved, avgMs1:avg ms1, avgMs2:avg ms2 by status1 from solves";
+  "select from solves where retried";
+  "select n:count i, maxPrimRatio:max primRes%epsPrim, maxDualRatio:max dualRes%epsDual, over1:sum (primRes&gt;epsPrim) or dualRes&gt;epsDual by status from solves";
+  "select rhoUpdates:sum rhoUpdates, solvesWithUpdate:sum rhoUpdates&gt;0, msWithUpdate:avg totalMs where rhoUpdates&gt;0, msWithout:avg totalMs where rhoUpdates=0, lastRhoEstimate:last rhoEstimate from solves";
+  "select n:count i, avgMs:avg totalMs, avgIter:avg iter by rhoUpdates from solves";
+  "count widen";
+  "select n:count i, avgBefore:avg tauLeftBefore, avgAfter:avg tauAfter, maxAfter:max tauAfter, atReset:sum windowReset from widen";
+  "select n:count i, maxAfter:max tauAfter by 0D00:01 xbar time from widen";
   "MODE";
   "target[]";
   "exposures[]";
@@ -1709,7 +1793,7 @@ optQueries:(
   "`rows`seconds`names!(count hist; `long$1e-9*(max hist`time)-min hist`time; count distinct hist`sym)";
   "select meanGap:avg abs h-h0, maxGap:max abs h-h0, h0Min:min h0, h0Max:max h0, hMin:min h, hMax:max h, atCap:avg h&gt;=0.2999, atZero:avg h&lt;=1e-4 by sym from hist";
   "select h0Total:avg h0Sum, h0Min:min h0Sum, h0Max:max h0Sum, hTotal:avg hSum from select h0Sum:sum h0, hSum:sum h by time from hist";
-  "select n:count i, avgMs:avg ms, avgIter:avg iter by fillsInBatch:5 xbar 0^deltas nfills from solves";
+  "select n:count i, avgMs:avg totalMs, avgIter:avg iter by fillsInBatch:5 xbar 0^deltas nfills from solves";
   "$[MODE=`mpo; select planGap2:avg abs e1-h, planGap3:avg abs e2-h, plan3vsBook:avg abs e2-h0 by sym from hist; `na]";
   "$[MODE=`mso; select gross:0.25*(sum abs 1_deltas e1)+(sum abs 1_deltas e2)+(sum abs 1_deltas e3)+sum abs 1_deltas e4, net:sum abs 1_deltas h by sym from hist; `na]";
   "$[MODE=`mso; select booksAtCap:avg (e1&gt;=0.2999)+(e2&gt;=0.2999)+(e3&gt;=0.2999)+e4&gt;=0.2999, booksAtZero:avg (e1&lt;=1e-4)+(e2&lt;=1e-4)+(e3&lt;=1e-4)+e4&lt;=1e-4 by sym from hist; `na]";
@@ -1737,7 +1821,7 @@ optQueries:(
   "dmpS:dmpFill[2000]\\[(dmpB;dmpH;dmpZ`h;0n;0;`;0n);til 40]";
   "dmpFT:([] fill:1+til 40; ms:dmpS[;3]; iter:dmpS[;4]; status:dmpS[;5]; tauLeft:dmpS[;6])";
   "dmpFT";
-  "select n:count i, medMs:med ms, p90Ms:pct[ms;0.9], maxMs:max ms, avgIter:avg iter, maxIter:max iter by status from dmpFT";
+  "select n:count i, medMs:med totalMs, p90Ms:pct[totalMs;0.9], maxMs:max totalMs, avgIter:avg iter, maxIter:max iter by status from dmpFT";
   "dmpB:dmpS[39;0]";
   "\\t dmpR2:.qp.solve dmpH2:.po.setup[dmpB;.qp.S 2000]";
   "`status`iter#dmpR2";
@@ -1805,6 +1889,10 @@ histDump:{[]
   f:hsym `$getenv[`HOME],"/Code/port-opt-stack/bench/live_",string[MODE],".csv";
   f 0: csv 0: hist;
   -1"wrote ",(1_string f)," · ",string[count hist]," rows";
+  / the solve log and the tau widenings, for the solve-health charts
+  g:{[t;nm] p:hsym `$getenv[`HOME],"/Code/port-opt-stack/bench/",nm,"_",string[MODE],".csv"; p 0: csv 0: t;
+     -1"wrote ",(1_string p)," · ",string[count t]," rows"; p};
+  g[solves;"solves"]; if[`widen in key `.; g[widen;"widen"]];
   f };
 optDump0:optDump;
 optDump:{[] r:optDump0[]; if[`hist in key `.; histDump[]]; r};

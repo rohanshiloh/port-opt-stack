@@ -7,5 +7,5 @@ up:{@[{hclose hopen x; `up};x;`down]};
 status:{update state:up each port from procs};
 ask:{[port;x] h:hopen port; r:h x; hclose h; r};
 opt:ask 5015;                                  / opt"target[]"   opt"-10#solves"
-solveStats:{opt"select n:count i, avgMs:avg ms, maxMs:max ms, avgIter:avg iter by status from solves"};
+solveStats:{opt"select n:count i, avgMs:avg totalMs, maxMs:max totalMs, retries:sum retried, avgIter:avg iter by status from solves"};
 -1"lab → status[]   opt\"target[]\"   solveStats[]   ask[5014;\"…\"]";

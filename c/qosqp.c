@@ -118,13 +118,13 @@ K qp_solve(K h){
   OSQPInfo* f=s->info; OSQPSolution* z=s->solution;
   K x=ktn(KF,dimN[i]); memcpy(kF(x),z->x,dimN[i]*sizeof(F));
   K y=ktn(KF,dimM[i]); memcpy(kF(y),z->y,dimM[i]*sizeof(F));
-  K keys=ktn(KS,11);
+  K keys=ktn(KS,13);
   const char* nm[]={"status","statusVal","iter","obj","primRes","dualRes",
-                    "setupTime","solveTime","runTime","x","y"};
-  for(int j=0;j<11;j++) kS(keys)[j]=ss((S)nm[j]);
-  K vals=knk(11, ks(f->status), kj(f->status_val), kj(f->iter), kf(f->obj_val),
+                    "setupTime","solveTime","runTime","rhoUpdates","rhoEstimate","x","y"};
+  for(int j=0;j<13;j++) kS(keys)[j]=ss((S)nm[j]);
+  K vals=knk(13, ks(f->status), kj(f->status_val), kj(f->iter), kf(f->obj_val),
              kf(f->prim_res), kf(f->dual_res), kf(f->setup_time), kf(f->solve_time),
-             kf(f->run_time), x, y);
+             kf(f->run_time), kj(f->rho_updates), kf(f->rho_estimate), x, y);
   return xD(keys,vals);
 }
 

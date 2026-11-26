@@ -43,10 +43,19 @@ optQueries:(
   "`uni`NAV`nFill`rdbFills`timerMs`rebal!(uni;NAV;nFill;rdbFills[];system\"t\";REBAL)";
   "count solves";
   "-10#solves";
-  "select n:count i, medMs:med ms, p90Ms:pct[ms;0.9], maxMs:max ms, avgIter:avg iter, maxIter:max iter, minTauLeft:min turnoverLeft by status from solves";
-  "select n:count i, avgMs:avg ms, avgIter:avg iter, lastFills:last nfills by 0D00:01 xbar time from solves";
+  "select n:count i, medMs:med totalMs, p90Ms:pct[totalMs;0.9], maxMs:max totalMs, avgIter:avg iter, maxIter:max iter, minTauLeft:min turnoverLeft by status from solves";
+  "select n:count i, p50Ms:pct[totalMs;0.5], p90Ms:pct[totalMs;0.9], p99Ms:pct[totalMs;0.99], avgIter:avg iter, retries:sum retried, notSolved:sum not status=`solved, lastFills:last nfills by 0D00:01 xbar time from solves";
   "select n:count i by iterBucket:100*iter div 100 from solves";
-  "pct[solves`ms;0 .1 .25 .5 .75 .9 .99 1]";
+  "pct[solves`totalMs;0 .1 .25 .5 .75 .9 .99 1]";
+  / ── solve health: retries, both attempts, residuals against OSQP's own thresholds, adaptive rho
+  "select n:count i, firstFailed:sum retried, retrySolved:sum retried and status=`solved, avgMs1:avg ms1, avgMs2:avg ms2 by status1 from solves";
+  "select from solves where retried";
+  "select n:count i, maxPrimRatio:max primRes%epsPrim, maxDualRatio:max dualRes%epsDual, over1:sum (primRes>epsPrim) or dualRes>epsDual by status from solves";
+  "select rhoUpdates:sum rhoUpdates, solvesWithUpdate:sum rhoUpdates>0, msWithUpdate:avg totalMs where rhoUpdates>0, msWithout:avg totalMs where rhoUpdates=0, lastRhoEstimate:last rhoEstimate from solves";
+  "select n:count i, avgMs:avg totalMs, avgIter:avg iter by rhoUpdates from solves";
+  "count widen";
+  "select n:count i, avgBefore:avg tauLeftBefore, avgAfter:avg tauAfter, maxAfter:max tauAfter, atReset:sum windowReset from widen";
+  "select n:count i, maxAfter:max tauAfter by 0D00:01 xbar time from widen";
   "MODE";
   "target[]";
   "exposures[]";
@@ -60,7 +69,7 @@ optQueries:(
   "`rows`seconds`names!(count hist; `long$1e-9*(max hist`time)-min hist`time; count distinct hist`sym)";
   "select meanGap:avg abs h-h0, maxGap:max abs h-h0, h0Min:min h0, h0Max:max h0, hMin:min h, hMax:max h, atCap:avg h>=0.2999, atZero:avg h<=1e-4 by sym from hist";
   "select h0Total:avg h0Sum, h0Min:min h0Sum, h0Max:max h0Sum, hTotal:avg hSum from select h0Sum:sum h0, hSum:sum h by time from hist";
-  "select n:count i, avgMs:avg ms, avgIter:avg iter by fillsInBatch:5 xbar 0^deltas nfills from solves";
+  "select n:count i, avgMs:avg totalMs, avgIter:avg iter by fillsInBatch:5 xbar 0^deltas nfills from solves";
   "$[MODE=`mpo; select planGap2:avg abs e1-h, planGap3:avg abs e2-h, plan3vsBook:avg abs e2-h0 by sym from hist; `na]";
   "$[MODE=`mso; select gross:0.25*(sum abs 1_deltas e1)+(sum abs 1_deltas e2)+(sum abs 1_deltas e3)+sum abs 1_deltas e4, net:sum abs 1_deltas h by sym from hist; `na]";
   "$[MODE=`mso; select booksAtCap:avg (e1>=0.2999)+(e2>=0.2999)+(e3>=0.2999)+e4>=0.2999, booksAtZero:avg (e1<=1e-4)+(e2<=1e-4)+(e3<=1e-4)+e4<=1e-4 by sym from hist; `na]";
@@ -88,7 +97,7 @@ optQueries:(
   "dmpS:dmpFill[2000]\\[(dmpB;dmpH;dmpZ`h;0n;0;`;0n);til 40]";
   "dmpFT:([] fill:1+til 40; ms:dmpS[;3]; iter:dmpS[;4]; status:dmpS[;5]; tauLeft:dmpS[;6])";
   "dmpFT";
-  "select n:count i, medMs:med ms, p90Ms:pct[ms;0.9], maxMs:max ms, avgIter:avg iter, maxIter:max iter by status from dmpFT";
+  "select n:count i, medMs:med totalMs, p90Ms:pct[totalMs;0.9], maxMs:max totalMs, avgIter:avg iter, maxIter:max iter by status from dmpFT";
   "dmpB:dmpS[39;0]";
   "\\t dmpR2:.qp.solve dmpH2:.po.setup[dmpB;.qp.S 2000]";
   "`status`iter#dmpR2";
@@ -156,6 +165,10 @@ histDump:{[]
   f:hsym `$getenv[`HOME],"/Code/port-opt-stack/bench/live_",string[MODE],".csv";
   f 0: csv 0: hist;
   -1"wrote ",(1_string f)," · ",string[count hist]," rows";
+  / the solve log and the tau widenings, for the solve-health charts
+  g:{[t;nm] p:hsym `$getenv[`HOME],"/Code/port-opt-stack/bench/",nm,"_",string[MODE],".csv"; p 0: csv 0: t;
+     -1"wrote ",(1_string p)," · ",string[count t]," rows"; p};
+  g[solves;"solves"]; if[`widen in key `.; g[widen;"widen"]];
   f };
 optDump0:optDump;
 optDump:{[] r:optDump0[]; if[`hist in key `.; histDump[]]; r};

@@ -61,8 +61,24 @@ logHist:{ n:count uni; h0v:(b`l) b[`rT]+til n;
        MODE=`mso; 4#.po.books[b;lastX];
                   4#enlist n#0n];
   `hist insert (n#.z.n; uni; h0v; cur`h; ex 0; ex 1; ex 2; ex 3) };
-solves:([] time:`timespan$(); nfills:`long$(); iter:`long$(); ms:`float$();
-  status:`symbol$(); turnoverLeft:`float$(); objective:`float$());
+/ one row per resolve. A failed first attempt is retried once with a wider tau: both attempts are kept.
+/ primRes and dualRes are the final attempt's; epsPrim and epsDual are OSQP's stopping thresholds for them
+/ (eps_abs + eps_rel * the problem's norms, with z taken as Ax clamped to [l,u]). rhoEstimate is OSQP's
+/ estimate of a good rho, not necessarily the rho it used; rhoUpdates counts refactorisations from adaptive rho.
+solves:([] time:`timespan$(); nfills:`long$(); windowReset:`boolean$(); retried:`boolean$();
+  status1:`symbol$(); iter1:`long$(); ms1:`float$(); status2:`symbol$(); iter2:`long$(); ms2:`float$();
+  totalMs:`float$(); status:`symbol$(); iter:`long$(); primRes:`float$(); epsPrim:`float$();
+  dualRes:`float$(); epsDual:`float$(); rhoUpdates:`long$(); rhoEstimate:`float$();
+  turnoverLeft:`float$(); objective:`float$());
+/ one row each time tau is widened to repair an infeasible problem
+widen:([] time:`timespan$(); tauLeftBefore:`float$(); tauAfter:`float$(); windowReset:`boolean$());
+EPS:.qp.S[count uni]`eps_abs`eps_rel;
+
+/ OSQP's stopping thresholds for this problem at solution (x;y): b holds A and the upper triangle of P as triplets
+thresholds:{[x;y] Ax:@[b[`M]#0f;b`I;+;b[`V]*x b`J]; z:b[`l]|b[`u]&Ax;
+  o:where b[`PI]<>b`PJ; Px:@[b[`N]#0f;b`PI;+;b[`PV]*x b`PJ]; Px:@[Px;b[`PJ] o;+;(b[`PV]*x b`PI) o];
+  Aty:@[b[`N]#0f;b`J;+;b[`V]*y b`I];
+  (EPS[0]+EPS[1]*max abs[Ax],abs z; EPS[0]+EPS[1]*max abs[Px],abs[Aty],abs b`q)};
 target:{([sym:uni] h0:(b`l) b[`rT]+til b`n; h:cur`h; tradeShares:`long$NAV*(cur[`h]-(b`l) b[`rT]+til b`n)%px uni)};
 
 / the least turnover that brings h0 back inside lo <= h <= hi and 0.95 <= 1'h <= 1
@@ -82,16 +98,22 @@ upd:{[t;x] if[not t=`execs; :()];
 resolve:{
   dh:value pend; pend::uni!(count uni)#0f;
   b::.po.fill[b;dh];
-  if[REBAL<.z.n-lastRebal; b::.po.retau[b;d`tau]; lastRebal::.z.n];
+  reset:REBAL<.z.n-lastRebal;
+  if[reset; b::.po.retau[b;d`tau]; lastRebal::.z.n];
   .qp.update[hs;::;b`l;b`u];
-  t0:.z.p; r::.qp.solve hs; ms:1e-6*`long$.z.p-t0;
+  t0:.z.p; r::.qp.solve hs; t1:.z.p; r1:r; retried:not `solved=r`status;
   / infeasible: the random fills from the feed walked h0 outside the box or the budget band
   / by more than tau can repair. Widen tau to what the repair needs, plus a margin, solve again
-  if[not `solved=r`status; b::.po.retau[b;tauNeed[]]; lastRebal::.z.n;
+  if[retried; tb:(b`u) b`rO; tn:tauNeed[]; b::.po.retau[b;tn]; lastRebal::.z.n;
+     `widen insert (.z.n; tb; tn; reset);
      .qp.update[hs;::;b`l;b`u]; r::.qp.solve hs];
+  t2:.z.p; ms1:1e-6*`long$t1-t0; ms2:$[retried;1e-6*`long$t2-t1;0n];
   if[`solved=r`status; lastX::r`x; cur::.po.split[b;CO _ lastX];              / keep the last good target otherwise
      if[HISTEVERY<.z.n-lastHist; lastHist::.z.n; logHist[]]];
-  `solves insert (.z.n; nFill; r`iter; ms; r`status; (b`u) b`rO; r`obj) };
+  th:thresholds[r`x;r`y];
+  `solves insert (.z.n; nFill; reset; retried; r1`status; r1`iter; ms1;
+    $[retried;r`status;`]; $[retried;r`iter;0N]; ms2; 1e-6*`long$t2-t0; r`status; r`iter;
+    r`primRes; th 0; r`dualRes; th 1; r`rhoUpdates; r`rhoEstimate; (b`u) b`rO; r`obj) };
 
 
 .z.ts:{ if[any 0<>value pend; resolve[]] };
@@ -101,4 +123,4 @@ resolve:{
 TP:$[count tps:.z.x where .z.x like ":*"; first tps; ":5013"];
 .u.rep enlist (hopen `$":",TP)".u.sub[`execs;`]";
 system"t 250";
--1"opt → mode ",string[MODE]," · subscribed @ ",TP,"   try:  target[]   -10#solves   select avg ms, max ms, avg iter from solves   exposures[]",$[MODE=`mpo;"   plan[]";MODE=`mso;"   books[]";""];
+-1"opt → mode ",string[MODE]," · subscribed @ ",TP,"   try:  target[]   -10#solves   select avg totalMs, max totalMs, avg iter from solves   exposures[]",$[MODE=`mpo;"   plan[]";MODE=`mso;"   books[]";""];
