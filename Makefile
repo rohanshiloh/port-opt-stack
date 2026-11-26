@@ -38,7 +38,7 @@ c/qosqp.so: c/qosqp.c c/k.h
 	$(CC) $(CFLAGS) $(INC) c/qosqp.c $(LIB) $(RPATH) $(SOFLAGS) -o $@
 
 # the shim's own tests, with no q process: c/test/kmock.c stands in for the runtime
-test:
+test: c/qosqp.so
 	$(CC) $(CFLAGS) $(INC) c/test/test.c c/qosqp.c c/test/kmock.c $(LIB) $(TRPATH) -o c/test/qtest
 	./c/test/qtest
 
